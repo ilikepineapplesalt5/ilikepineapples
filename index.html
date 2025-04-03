@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>@</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- new tab icon -->
+  <link rel="icon" href="https://imgs.search.brave.com/nkr_Ya9Set6fp-rcMLk8fJDk_6bEQZCyfEMOykb0PyM/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly93d3cu/cG5nbWFydC5jb20v/ZmlsZXMvMS9UcmFu/c3BhcmVudC1QaW5l/YXBwbGUtUE5HLnBu/Zw">
+  <style>
+    /* base reset & typography */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: sans-serif;
+      text-transform: lowercase;
+    }
+    /* custom white dot cursor */
+    body {
+      background: #000;
+      color: #ccc;
+      overflow-x: hidden;
+      cursor: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='16'%20height='16'%3E%3Ccircle%20cx='8'%20cy='8'%20r='4'%20fill='white'/%3E%3C/svg%3E") 8 8, auto;
+      position: relative;
+    }
+    /* background video using video.mp4 */
+    #bg-video {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: -2;
+    }
+    /* splash screen overlay */
+    #splash {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      cursor: pointer;
+      transition: opacity 1s ease;
+    }
+    #splash h1 {
+      color: #fff;
+      font-size: 2.5rem;
+      text-shadow: 0 0 8px #fff, 0 0 16px #fff;
+    }
+    /* hero section: fills the viewport with the card centered */
+    .hero {
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      z-index: 1;
+    }
+    /* card container */
+    .card {
+      width: 300px;
+      background: rgba(26, 26, 26, 0.9);
+      border: 1px solid #333;
+      border-radius: 10px;
+      padding: 20px 20px 30px 20px;
+      text-align: center;
+      transition: transform 0.4s ease;
+    }
+    .card:hover {
+      transform: scale(1.03);
+    }
+    /* pineapple "gun" image on top of card */
+    .pineapple-gun {
+      width: 80px;
+      height: auto;
+      display: block;
+      margin: -70px auto 0 auto;
+      transition: transform 0.4s ease;
+    }
+    .card:hover .pineapple-gun {
+      transform: translateY(-10px);
+    }
+    /* profile content inside card */
+    .profile {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+      margin-top: 10px;
+    }
+    .profile-pic {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      border: 2px solid #fff;
+      transition: transform 0.3s ease;
+    }
+    .profile-pic:hover {
+      transform: scale(1.1);
+    }
+    .profile-name {
+      font-size: 1.3rem;
+      color: #000;
+      text-shadow: 0 0 8px #fff, 0 0 16px #fff;
+    }
+    /* social icons */
+    .social {
+      display: flex;
+      gap: 10px;
+    }
+    .social a {
+      display: inline-block;
+      transition: transform 0.3s ease;
+    }
+    .social a:hover {
+      transform: scale(1.2);
+    }
+    .social img {
+      width: 24px;
+      height: 24px;
+    }
+    /* audio player container */
+    .audio-player {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .audio-button {
+      background: #333;
+      color: #ccc;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.3s ease, transform 0.3s ease;
+    }
+    .audio-button:hover {
+      background: #444;
+      transform: scale(1.05);
+    }
+    /* custom volume slider */
+    .volume-slider {
+      position: relative;
+      width: 100px;
+      height: 8px;
+      background: #444;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .volume-fill {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 8px;
+      background: #000;
+      border-radius: 4px;
+      width: 50%;
+      transition: width 0.3s ease, box-shadow 0.3s ease;
+      box-shadow: 0 0 8px #fff, 0 0 16px #fff;
+    }
+    .volume-handle {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 14px;
+      height: 14px;
+      background: #fff;
+      border-radius: 50%;
+      box-shadow: 0 0 5px #fff;
+      left: calc(50% - 7px);
+      transition: left 0.3s ease, transform 0.3s ease;
+    }
+    .volume-handle:hover {
+      transform: translateY(-50%) scale(1.2);
+    }
+    /* system specs (system overview) section placed further down */
+    .system-specs {
+      width: 90%;
+      max-width: 900px;
+      margin: 100px auto;
+      background: rgba(26, 26, 26, 0.9);
+      border: 1px solid #333;
+      border-radius: 10px;
+      padding: 30px;
+      text-align: left;
+    }
+    .system-specs h2 {
+      text-align: center;
+      font-size: 2rem;
+      color: #000;
+      text-shadow: 0 0 10px #fff, 0 0 20px #fff;
+      margin-bottom: 20px;
+    }
+    .system-specs p,
+    .system-specs ul,
+    .system-specs h3 {
+      margin-bottom: 15px;
+    }
+    .system-specs ul {
+      list-style: none;
+      padding-left: 0;
+    }
+    .system-specs ul li::before {
+      content: "•";
+      margin-right: 8px;
+      color: #fff;
+    }
+    /* responsive adjustments */
+    @media (max-width: 768px) {
+      .card {
+        width: 80%;
+      }
+      .profile-name {
+        font-size: 1.2rem;
+      }
+      .system-specs h2 {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
+  <!-- dynamic tab title script -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const fullTitle = "@ilikepineapplesalt4";
+      let titleSequence = [];
+      // build the forward sequence
+      for(let i = 1; i <= fullTitle.length; i++){
+        titleSequence.push(fullTitle.slice(0, i));
+      }
+      // build the backward sequence without repeating the full title
+      const reverseSequence = titleSequence.slice(0, titleSequence.length - 1).reverse();
+      const sequence = titleSequence.concat(reverseSequence);
+      let current = 0;
+      setInterval(() => {
+        document.title = sequence[current];
+        current = (current + 1) % sequence.length;
+      }, 300);
+    });
+  </script>
+</head>
+<body>
+  <!-- background video using video.mp4 -->
+  <video id="bg-video" autoplay loop muted playsinline>
+    <source src="https://raw.githubusercontent.com/ilikepineapplesalt5/ilikepineapplesalt5.github.io/main/video.mp4" type="video/mp4">
+    your browser does not support html5 video
+  </video>
+  
+  <!-- splash screen overlay -->
+  <div id="splash">
+    <h1>click to enter</h1>
+  </div>
+  
+  <!-- hero section with centered card -->
+  <section class="hero">
+    <div class="card">
+      <img class="pineapple-gun" src="https://imgs.search.brave.com/nkr_Ya9Set6fp-rcMLk8fJDk_6bEQZCyfEMOykb0PyM/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly93d3cu/cG5nbWFydC5jb20v/ZmlsZXMvMS9UcmFu/c3BhcmVudC1QaW5l/YXBwbGUtUE5HLnBu/Zw" alt="pineapple gun">
+      <div class="profile">
+        <img class="profile-pic" src="https://imgs.search.brave.com/wuy2tGYRhXKqtzEKmhXH9QGv_cFWWJJbSVgB7rgjjjY/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9tZWRp/YS5pc3RvY2twaG90/by5jb20vaWQvOTUz/MDEwOTU0L3Bob3Rv/L3BpbmVhcHBsZS1m/cnVpdC1vbi10aGUt/YnVzaC5qcGc_cz02/MTJ4NjEyJnc9MCZr/PTIwJmM9NXp1WG96/NjdRVU9FTk1fQjVn/S3dHaVlsVFFoeTF2/YWRnX0JHQ0FKN18w/WT0" alt="profile picture">
+        <h1 class="profile-name">ilikepineapplesalt4</h1>
+        <div class="social">
+          <a href="https://github.com/ilikepineapplesalt5" target="_blank">
+            <img src="https://cdn-icons-png.flaticon.com/512/25/25231.png" alt="github">
+          </a>
+          <a href="https://discord.com/users/1353097932915605507" target="_blank">
+            <img src="https://cdn-icons-png.flaticon.com/512/2111/2111370.png" alt="discord">
+          </a>
+        </div>
+      </div>
+      <!-- audio player -->
+      <div class="audio-player">
+        <audio id="audio" controls>
+          <source src="https://raw.githubusercontent.com/ilikepineapplesalt5/ilikepineapplesalt5.github.io/main/audio.m4a" type="audio/mp4">
+        </audio>
+        <button class="audio-button" id="playBtn">pause</button>
+        <div class="volume-slider" id="volumeSlider">
+          <div class="volume-fill" id="volumeFill"></div>
+          <div class="volume-handle" id="volumeHandle"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  <!-- system specs (system overview) section placed further down -->
+  <section class="system-specs">
+    <h2>system overview</h2>
+    <div class="system-content">
+      <p>i am a dedicated luau script reverse engineer who breaks down, refines, and optimizes code. my process involves deobfuscating complex scripts and building automation tools that turn challenges into streamlined solutions.</p>
+      <h3>what i do</h3>
+      <ul>
+        <li>analyze and reverse engineer luau scripts</li>
+        <li>deobfuscate and restore code</li>
+        <li>bypass key systems</li>
+      </ul>
+      <h3>why work with me?</h3>
+      <p>with over 2 years of experience, i have cracked through 30+ scripts, meaning that i know a thing or two about what i'm doing</p>
+    </div>
+  </section>
+  
+  <script>
+    // splash screen: on click, fade out overlay and start audio
+    const splash = document.getElementById('splash');
+    const audio = document.getElementById('audio');
+    splash.addEventListener('click', () => {
+      splash.style.opacity = '0';
+      setTimeout(() => {
+        splash.style.display = 'none';
+      }, 1000);
+      audio.play();
+    });
+    
+    // audio player controls
+    const playBtn = document.getElementById('playBtn');
+    const volumeSlider = document.getElementById('volumeSlider');
+    const volumeFill = document.getElementById('volumeFill');
+    const volumeHandle = document.getElementById('volumeHandle');
+    
+    playBtn.addEventListener('click', () => {
+      if (audio.paused) {
+        audio.play();
+        playBtn.textContent = 'pause';
+      } else {
+              audio.pause();
+        playBtn.textContent = 'play';
+      }
+    });
+    
+    // custom volume slider logic
+    let dragging = false;
+    let sliderRect;
+    
+    const updateVolumeUI = (volume) => {
+      const percent = volume * 100;
+      volumeFill.style.width = percent + '%';
+      volumeHandle.style.left = `calc(${percent}% - 7px)`;
+    };
+    
+    audio.volume = 0.5;
+    updateVolumeUI(0.5);
+    
+    const onMouseMove = (e) => {
+      if (!dragging) return;
+      const x = e.clientX - sliderRect.left;
+      let volume = x / sliderRect.width;
+      volume = Math.max(0, Math.min(1, volume));
+      audio.volume = volume;
+      updateVolumeUI(volume);
+    };
+    
+    volumeSlider.addEventListener('mousedown', (e) => {
+      dragging = true;
+      sliderRect = volumeSlider.getBoundingClientRect();
+      onMouseMove(e);
+    });
+    
+    document.addEventListener('mousemove', (e) => {
+      if (dragging) onMouseMove(e);
+    });
+    
+    document.addEventListener('mouseup', () => {
+      dragging = false;
+    });
+  </script>
+</body>
+</html>
